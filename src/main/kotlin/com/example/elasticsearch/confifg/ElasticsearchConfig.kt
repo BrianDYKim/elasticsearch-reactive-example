@@ -1,16 +1,22 @@
 package com.example.elasticsearch.confifg
 
+import org.elasticsearch.client.RestHighLevelClient
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.elasticsearch.client.ClientConfiguration
+import org.springframework.data.elasticsearch.client.RestClients
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient
 import org.springframework.data.elasticsearch.client.reactive.ReactiveRestClients
 import org.springframework.data.elasticsearch.config.AbstractReactiveElasticsearchConfiguration
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchOperations
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 
 /** Configuration class to use elasticsearch reactive
  * @author Brian
@@ -46,6 +52,20 @@ class ElasticsearchConfig : AbstractReactiveElasticsearchConfiguration() {
     @Bean
     fun reactiveElasticsearchOperations(): ReactiveElasticsearchOperations {
         return ReactiveElasticsearchTemplate(reactiveElasticsearchClient(), elasticsearchConverter())
+    }
+
+    @Bean
+    fun elasticsearchClient(): RestHighLevelClient {
+        val clientConfiguration = ClientConfiguration.builder()
+            .connectedTo("localhost:9200")
+            .build()
+
+        return RestClients.create(clientConfiguration).rest()
+    }
+
+    @Bean
+    fun elasticsearchOperations(): ElasticsearchOperations {
+        return ElasticsearchRestTemplate(elasticsearchClient())
     }
 
 }
